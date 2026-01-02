@@ -1,0 +1,27 @@
+name: Build 8 Ball Pool Dumper
+on:
+  workflow_dispatch:
+    # لم نعد بحاجة لمدخلات هنا، الاسم ثابت الآن
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+          cache: gradle
+      - run: |
+          chmod +x ./gradlew
+          # تعديل وصف الموديل باسم اللعبة مباشرة
+          sed -i 's/moduleDescription = "/moduleDescription = "(com.miniclip.eightballpool) /g' module.gradle
+          # تعديل الملف الهدف باسم حزمة اللعبة مباشرة
+          sed -i "s/com.game.packagename/com.miniclip.eightballpool/g" module/src/main/cpp/game.h
+          ./gradlew :module:assembleRelease
+      - uses: actions/upload-artifact@v4
+        with:
+          name: zygisk-il2cppdumper
+          path: out/magisk_module_release/
+          
